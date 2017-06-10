@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
 #include <avr/io.h>
 #include <avr/wdt.h>
 #include <avr/interrupt.h>
@@ -168,7 +169,7 @@ int i2c_transaction(void) {
 
     if (!err) {
         int i;
-        for (i = 0; i < ROWS_PER_HAND-1; ++i) {
+        for (i = 0; i < ROWS_PER_HAND-1; ++i) { // FIXME
             matrix[slaveOffset+i] = i2c_master_read(I2C_ACK);
         }
         matrix[slaveOffset+i] = i2c_master_read(I2C_NACK);
@@ -191,9 +192,8 @@ int serial_transaction(void) {
         return 1;
     }
 
-    for (int i = 0; i < ROWS_PER_HAND; ++i) {
-        matrix[slaveOffset+i] = serial_slave_buffer[i];
-    }
+    memcpy((void*)&matrix[slaveOffset], (const void*)serial_slave_buffer, SERIAL_SLAVE_BUFFER_LENGTH);
+
     return 0;
 }
 #endif
@@ -238,12 +238,10 @@ void matrix_slave_scan(void) {
 #ifdef USE_I2C
     for (int i = 0; i < ROWS_PER_HAND; ++i) {
         /* i2c_slave_buffer[i] = matrix[offset+i]; */
-        i2c_slave_buffer[i] = matrix[offset+i];
+        i2c_slave_buffer[i] = matrix[offset+i]; // FIXME
     }
 #else // USE_SERIAL
-    for (int i = 0; i < ROWS_PER_HAND; ++i) {
-        serial_slave_buffer[i] = matrix[offset+i];
-    }
+    memcpy((void*)serial_slave_buffer, (const void*)&matrix[offset], SERIAL_SLAVE_BUFFER_LENGTH);
 #endif
 }
 

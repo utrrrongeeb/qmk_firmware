@@ -1,6 +1,7 @@
 #ifndef MY_SERIAL_H
 #define MY_SERIAL_H
 
+#include "matrix.h"
 #include "config.h"
 #include <stdbool.h>
 
@@ -11,7 +12,7 @@
 #define SERIAL_PIN_MASK _BV(PD0)
 #define SERIAL_PIN_INTERRUPT INT0_vect
 
-#define SERIAL_SLAVE_BUFFER_LENGTH MATRIX_ROWS/2
+#define SERIAL_SLAVE_BUFFER_LENGTH MATRIX_ROWS/2*sizeof(matrix_row_t)
 #define SERIAL_MASTER_BUFFER_LENGTH 1
 
 // Buffers for master - slave communication
